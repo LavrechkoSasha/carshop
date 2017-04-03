@@ -12,8 +12,8 @@ class AppController
 
     public function loginUser ($user_data)
     {
-        if (isset($user_data['token'])) {
-            $_SESSION['user']['token'] = $user_data['token'];
+        if (isset($user_data['identity'])) {
+            $_SESSION['user']['identity'] = $user_data['identity'];
         }
 
         $_SESSION['user']['id'] = $user_data['_id']['$id'];

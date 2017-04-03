@@ -13,7 +13,7 @@ class Users
         $mongo = new MongoClient(); // соединяемся с сервером
         $collection_users = $mongo->selectDB('carshop')->selectCollection('users');
         $result = $collection_users->insert($user);
-
+        $mongo->close();
         return $result;
     }
 
@@ -23,7 +23,7 @@ class Users
         $collection_users = $mongo->selectDB('carshop')->selectCollection('users');
 
         $result = $collection_users->count(['email' => $user['email']]);
-
+        $mongo->close();
         return $result;
     }
 
@@ -33,6 +33,8 @@ class Users
         $collection_users = $mongo->selectDB('carshop')->selectCollection('users');
 
         $result = $collection_users->count(['identity' => $user['identity']]);
+
+        $mongo->close();
         return $result;
     }
 
@@ -45,7 +47,17 @@ class Users
         } else {
             $result = $collection_users->findOne(['email' => $user['email']]);
         }
+        $mongo->close();
+        return $result;
+    }
 
+    public static function checkUserIdExist ($user_id)
+    {
+        $mongo = new MongoClient();
+        $collection_users = $mongo->selectDB('carshop')->selectCollection('users');
+
+        $result = $collection_users->count(['identity' => $user_id]);
+        $mongo->close();
         return $result;
     }
 }

@@ -10,7 +10,6 @@ class UsersController extends AppController
 {
     public function actionAdd()
     {
-
         $title = "Реєстрація";
         $auth_error = [];
         $error_api = [];
@@ -69,6 +68,8 @@ class UsersController extends AppController
                     curl_close($curl);
 
                     $error_api = json_decode($result, true);
+//                    var_dump($error_api);
+//                    die;
                 }
                 if (count($error_api) == 0) {
                     $this->actionLogin();
@@ -111,6 +112,7 @@ class UsersController extends AppController
 
                 if($user_data) {
                     $this->loginUser($user_data);
+                    header("Location: /");
                 } else {
                     $validate_errors['user_does_not_exist'] = false;
                 }

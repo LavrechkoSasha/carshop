@@ -10,18 +10,26 @@ class IndexController extends AppController
 {
     public function actionIndex($parameters)
     {
+        $all_product = [];
         $title = "Головна";
-//        var_dump($_SESSION);
-//        $b = $this->a." which rename b";
-//        echo 'index/index';
-//        echo "<br> $b";
-//
-//        echo "<a href='http://carshop/users/add/'>http://carshop/users/add/</a>";
-        var_dump($_SESSION);
+
+
+        if( $curl = curl_init() ) {
+            curl_setopt($curl, CURLOPT_URL, $_SERVER['SERVER_NAME']."/api/all_products");
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
+            $result = curl_exec($curl);
+            curl_close($curl);
+
+            $all_product = json_decode($result, true);
+//            var_dump($all_product);
+
+        } else {
+            $api_error['curl'] = 'Не вдалося звязатись з API!';
+        }
+
         require_once ROOT.'/views/index/index.php';
         return true;
     }
-
 
     public function actionView($parameters)
     {
