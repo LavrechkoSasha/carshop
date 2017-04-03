@@ -2,15 +2,18 @@
 /**
  * Created by PhpStorm.
  * User: Sasha
- * Date: 01.04.2017
- * Time: 18:35
+ * Date: 03.04.2017
+ * Time: 21:22
  */
 ?>
 
 <?php  require_once (ROOT . '/views/layouts/header.php'); ?>
 
-<?php if (count($all_product) > 0) :?>
-    <?php foreach ($all_product as $product): ?>
+
+<?php if (count($my_product) > 0) :?>
+    <?php foreach ($my_product as $product): ?>
+        <?php $product['id'] = $product ?>
+
         <div>
             <div style="float:left; width: 100px;">Марка</div>
             <div style="float:left; width: 300px;"><?php echo $product['brand']; ?></div>
@@ -46,5 +49,6 @@
 <?php else: ?>
     <h2 style="color:red;">Нажаль товарів ще нема!</h2>
 <?php endif;?>
+
 
 <?php  require_once (ROOT . '/views/layouts/footer.php'); ?>

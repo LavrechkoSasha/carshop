@@ -10,15 +10,15 @@ require_once ROOT.'/models/Products.php';
  */
 class ApiController
 {
-    public function actionAllProducts()
+    public function actionGetProducts($user_id = null)
     {
-        require_once ROOT.'/models/Products.php';
+        if (!$user_id) {
+            $result =  json_encode(Products::getAllProducts());
+        } else {
 
-        $result = Products::getAllProducts();
-
+            $result =  json_encode(Products::getUserProducts($user_id[0]));
+        }
         echo $result;
-
-        return true;
     }
 
     public function actionViewProduct($id)
@@ -121,7 +121,7 @@ class ApiController
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = json_decode($_POST['user'], true);
 
-            $result = Users::checkLoginExists($user);
+            $result = Users::userLogin($user);
 
             echo json_encode($result);
         }

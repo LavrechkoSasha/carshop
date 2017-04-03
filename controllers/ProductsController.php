@@ -8,14 +8,14 @@
  */
 class ProductsController extends AppController
 {
-    public function actionIndex($parameters)
+    public function actionIndex()
     {
         $all_product = [];
         $title = "Каталог товарів";
 
 
         if( $curl = curl_init() ) {
-            curl_setopt($curl, CURLOPT_URL, $_SERVER['SERVER_NAME']."/api/all_products");
+            curl_setopt($curl, CURLOPT_URL, $_SERVER['SERVER_NAME']."/api/get_products");
             curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
             $result = curl_exec($curl);
             curl_close($curl);
@@ -27,6 +27,33 @@ class ProductsController extends AppController
             $api_error['curl'] = 'Не вдалося звязатись з API!';
         }
         require_once ROOT.'/views/products/index.php';
+        return true;
+    }
+
+    public function actionUserProducts()
+    {
+        if (! isset($_SESSION['user']['id'])) {
+            header("Location: /users/login");
+        }
+
+        $all_product = [];
+        $title = "Каталог товарів";
+
+        $user_id = $_SESSION['user']['id'];
+
+        if( $curl = curl_init() ) {
+            curl_setopt($curl, CURLOPT_URL, $_SERVER['SERVER_NAME']."/api/get_products/$user_id");
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
+            $result = curl_exec($curl);
+            curl_close($curl);
+
+            $my_product = json_decode($result, true);
+            var_dump($my_product);
+
+        } else {
+            $api_error['curl'] = 'Не вдалося звязатись з API!';
+        }
+        require_once ROOT.'/views/products/myproducts.php';
         return true;
     }
 
@@ -62,6 +89,10 @@ class ProductsController extends AppController
 
     public function actionAdd()
     {
+        if (! isset($_SESSION['user']['id'])) {
+            header("Location: /users/login");
+        }
+
         $title = "Додавання нового автомобіля";
 
         $brand = "";
@@ -138,15 +169,19 @@ class ProductsController extends AppController
 
         require_once ROOT.'/views/products/add.php';
         return true;
+
     }
 
     public function actionEdit($id) {
+
+        if (! isset($_SESSION['user']['id'])) {
+            header("Location: /users/login");
+        }
 
         $id = $id[0];
         $api_error = [];
         $validate_errors = [];
         $edit_fields = [];
-
 
         if( $curl = curl_init() ) {
             curl_setopt($curl, CURLOPT_URL, $_SERVER['SERVER_NAME']."/api/view_product/$id");
@@ -241,7 +276,6 @@ class ProductsController extends AppController
 
         $title = "Edit";
 
-//        var_dump($created);
         require_once ROOT.'/views/products/edit.php';
         return true;
     }

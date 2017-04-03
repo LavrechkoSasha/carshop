@@ -13,9 +13,20 @@ class Products
         $mongo = new MongoClient(); // соединяемся с сервером
         $collection_products = $mongo->selectDB('carshop')->selectCollection('products');
         $all_products = $collection_products->find();
-        $result = json_encode(iterator_to_array($all_products));
+        $result = iterator_to_array($all_products);
         $mongo->close();
 
+        return $result;
+    }
+
+    public static function getUserProducts($user_id)
+    {
+        $mongo = new MongoClient(); // соединяемся с сервером
+        $collection_products = $mongo->selectDB('carshop')->selectCollection('products');
+        $all_products = $collection_products->find(['author_id' => $user_id]);
+        $result = iterator_to_array($all_products);
+        $mongo->close();
+//        var_dump($result);
         return $result;
     }
 
@@ -63,9 +74,6 @@ class Products
             $update_error['error'] = "Не вдалось обновити дані автомобіля!";
             return $update_error;
         }
-
-
-
     }
 
     /**

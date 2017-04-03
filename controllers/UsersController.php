@@ -10,6 +10,10 @@ class UsersController extends AppController
 {
     public function actionAdd()
     {
+        if (isset($_SESSION['user']['id'])) {
+            header("Location: /products/my_products");
+        }
+
         $title = "Реєстрація";
         $auth_error = [];
         $error_api = [];
@@ -83,6 +87,10 @@ class UsersController extends AppController
 
     public function actionLogin()
     {
+        if (isset($_SESSION['user']['id'])) {
+            header("Location: /products/my_products");
+        }
+
         $title = "Вхід";
 
         if($_SERVER['REQUEST_METHOD'] == "POST") {
@@ -112,7 +120,7 @@ class UsersController extends AppController
 
                 if($user_data) {
                     $this->loginUser($user_data);
-                    header("Location: /");
+                    header("Location: /products/my_products");
                 } else {
                     $validate_errors['user_does_not_exist'] = false;
                 }

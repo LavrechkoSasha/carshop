@@ -15,7 +15,7 @@ class IndexController extends AppController
 
 
         if( $curl = curl_init() ) {
-            curl_setopt($curl, CURLOPT_URL, $_SERVER['SERVER_NAME']."/api/all_products");
+            curl_setopt($curl, CURLOPT_URL, $_SERVER['SERVER_NAME']."/api/get_products");
             curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
             $result = curl_exec($curl);
             curl_close($curl);

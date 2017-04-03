@@ -19,19 +19,31 @@
 <body>
 
 <header>
-    <a href="/">На головну</a>
-    <span>||</span>
-    <?php if (isset($_SESSION['user'])) : ?>
-<!--        <a href="/user/cabinet">Особистий кабінет</a>
-        <span>||</span>-->
-        <a href="/users/logout">Вихід</a>
-        <hr>
-        <p>Ви ввійшли як <b style="font-size: large;"><u> <?php echo $_SESSION['user']['first_name']; ?> </u></b></p>
-        <hr>
-    <?php else: ?>
-        <a href="/users/login">Вхід</a>
-        <span>||</span>
-        <a href="/users/add">Реєстрація</a>
-    <?php endif; ?>
+
+<!--   Завжди-->
+    <a href="/">На головну</a> <span>||</span>
+    <a href="/products/index">Каталог</a> <span>||</span>
+
+<!--    --><?php //if (isset($_SESSION['user'])) : ?><!--   -->
+<!--    користувач не залогінений-->
+    <a href="/users/add">Реєстрація</a> <span>||</span>
+    <a href="/users/login">Вхід</a>
+<!--    --><?php //else: ?>
+<!--    користувач залогінений-->
+    <a href="/users/logout">Вихід</a> <span>||</span>
+    <a href="/products/my_products">Мої товари</a> <span>||</span>
+    <a href="/products/add">Додати товар</a>
+<!--    --><?php //endif; ?>
+
 </header>
+
+<ol>
+    <li><a href="lorem">lorem</a></li>
+    <li><a href="lorem">lorem</a></li>
+    <li><a href="lorem">lorem</a></li>
+    <li><a href="lorem">lorem</a></li>
+    <li><a href="lorem">lorem</a></li>
+</ol>
+
+<?php var_dump($_SESSION); ?>
 

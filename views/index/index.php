@@ -40,7 +40,7 @@
             <div style="float:left; width: 300px;"><h3 style="color: green;"><?php echo $product['price']; ?></h3></div>
             <div style="clear: both;"></div>
         </div>
-
+        <a href="<?php echo "/products/{$product['_id']['$id']}"; ?>">Перегляд</a>
         <hr>
     <?php endforeach; ?>
 <?php else: ?>

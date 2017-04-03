@@ -38,14 +38,16 @@ class Users
         return $result;
     }
 
-    public static function checkLoginExists ($user) {
+    public static function userLogin($user) {
         $mongo = new MongoClient(); // соединяемся с сервером
         $collection_users = $mongo->selectDB('carshop')->selectCollection('users');
+
+//        var_dump($user);
 
         if (isset($user['identity'])) {
             $result = $collection_users->findOne(['identity' => $user['identity']]);
         } else {
-            $result = $collection_users->findOne(['email' => $user['email']]);
+            $result = $collection_users->findOne(['email' => $user['email'], 'password' => $user['password']]);
         }
         $mongo->close();
         return $result;
