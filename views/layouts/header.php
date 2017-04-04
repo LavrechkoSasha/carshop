@@ -24,26 +24,25 @@
     <a href="/">На головну</a> <span>||</span>
     <a href="/products/index">Каталог</a> <span>||</span>
 
-<!--    --><?php //if (isset($_SESSION['user'])) : ?><!--   -->
+    <?php if (! isset($_SESSION['user']['id'])) : ?>
 <!--    користувач не залогінений-->
     <a href="/users/add">Реєстрація</a> <span>||</span>
     <a href="/users/login">Вхід</a>
-<!--    --><?php //else: ?>
+    <?php else: ?>
 <!--    користувач залогінений-->
-    <a href="/users/logout">Вихід</a> <span>||</span>
-    <a href="/products/my_products">Мої товари</a> <span>||</span>
-    <a href="/products/add">Додати товар</a>
-<!--    --><?php //endif; ?>
+        <?php if (! isset($_SESSION['user']['is_admin'])) : ?>
+            <a href="/products/my_products">Мої товари</a> <span>||</span>
+            <a href="/products/add">Додати товар</a> <span>||</span>
+        <?php else: ?>
+            <a href="/admin">Адмінка</a> <span>||</span>
+        <?php endif; ?>
 
+
+    <a href="/users/logout">Вихід</a>
+    <?php endif; ?>
+<!--    if (! isset($_SESSION['user']['is_admin'])) header("Location: /products");-->
 </header>
+<hr>
 
-<ol>
-    <li><a href="lorem">lorem</a></li>
-    <li><a href="lorem">lorem</a></li>
-    <li><a href="lorem">lorem</a></li>
-    <li><a href="lorem">lorem</a></li>
-    <li><a href="lorem">lorem</a></li>
-</ol>
-
-<?php var_dump($_SESSION); ?>
+<?php //var_dump($_SESSION); ?>
 

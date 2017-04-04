@@ -13,7 +13,6 @@ class ProductsController extends AppController
         $all_product = [];
         $title = "Каталог товарів";
 
-
         if( $curl = curl_init() ) {
             curl_setopt($curl, CURLOPT_URL, $_SERVER['SERVER_NAME']."/api/get_products");
             curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
@@ -32,9 +31,8 @@ class ProductsController extends AppController
 
     public function actionUserProducts()
     {
-        if (! isset($_SESSION['user']['id'])) {
-            header("Location: /users/login");
-        }
+        if (! isset($_SESSION['user']['id'])) header("Location: /users/login");
+        if (isset($_SESSION['user']['is_admin'])) header("Location: /admin");
 
         $all_product = [];
         $title = "Каталог товарів";
@@ -48,7 +46,6 @@ class ProductsController extends AppController
             curl_close($curl);
 
             $my_product = json_decode($result, true);
-            var_dump($my_product);
 
         } else {
             $api_error['curl'] = 'Не вдалося звязатись з API!';
@@ -57,9 +54,9 @@ class ProductsController extends AppController
         return true;
     }
 
-    public function actionView($parameters)
+    public function actionView($id)
     {
-        $id = $parameters[0];
+        $id = $id[0];
         $api_error = [];
 
         if( $curl = curl_init() ) {
@@ -89,9 +86,8 @@ class ProductsController extends AppController
 
     public function actionAdd()
     {
-        if (! isset($_SESSION['user']['id'])) {
-            header("Location: /users/login");
-        }
+        if (! isset($_SESSION['user']['id'])) header("Location: /users/login");
+        if (isset($_SESSION['user']['is_admin'])) header("Location: /admin");
 
         $title = "Додавання нового автомобіля";
 
@@ -169,14 +165,12 @@ class ProductsController extends AppController
 
         require_once ROOT.'/views/products/add.php';
         return true;
-
     }
 
-    public function actionEdit($id) {
+    public function actionEdit($id)
+    {
 
-        if (! isset($_SESSION['user']['id'])) {
-            header("Location: /users/login");
-        }
+        if (! isset($_SESSION['user']['id'])) header("Location: /users/login");
 
         $id = $id[0];
         $api_error = [];
@@ -210,7 +204,7 @@ class ProductsController extends AppController
             $price = $car_info['price'];
             $author_id = $car_info['author_id'];
             $created = date("y.m.d H:i:s", $car_info['created']);
-            if ($car_info['author_id'] == $_SESSION['user']['id']) {
+            if ($car_info['author_id'] == $_SESSION['user']['id'] || $_SESSION['user']['is_admin']) {
                 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
 
                     if (! preg_match('~[a-zA-z0-9_ -]{3,64}~i', $_POST['brand'])) {
@@ -255,13 +249,14 @@ class ProductsController extends AppController
                                 if (!isset($result_arr['_id'])) {
                                     $api_error = $result_arr;
                                 } else {
-                                    $brand = $result_arr['brand'];
+                                    header("Location: /products/$id");
+/*                                    $brand = $result_arr['brand'];
                                     $model = $result_arr['model'];
                                     $year = $result_arr['year'];
                                     $color = $result_arr['color'];
                                     $price = $result_arr['price'];
                                     $author_id = $result_arr['author_id'];
-                                    $created = date("y.m.d H:i:s", $result_arr['created']);
+                                    $created = date("y.m.d H:i:s", $result_arr['created']);*/
                                 }
                             }
                         } else {

@@ -10,9 +10,7 @@ class UsersController extends AppController
 {
     public function actionAdd()
     {
-        if (isset($_SESSION['user']['id'])) {
-            header("Location: /products/my_products");
-        }
+        if (isset($_SESSION['user']['id'])) header("Location: /products/my_products");
 
         $title = "Реєстрація";
         $auth_error = [];

@@ -1,6 +1,7 @@
 <?php
 require_once ROOT.'/models/Users.php';
 require_once ROOT.'/models/Products.php';
+require_once ROOT.'/models/Admin.php';
 
 /**
  * Created by PhpStorm.
@@ -19,12 +20,11 @@ class ApiController
             $result =  json_encode(Products::getUserProducts($user_id[0]));
         }
         echo $result;
+        return true;
     }
 
     public function actionViewProduct($id)
     {
-        require_once ROOT.'/models/Products.php';
-
         if (preg_match('~^[a-f0-9]{24}$~', $id[0])) {
             if (Products::checkProductExist($id[0])) {
                 $result = Products::getProduct($id[0]);
@@ -37,17 +37,16 @@ class ApiController
             $product_error['is_not_exist'] = 'Товару з таким id не існує!';
             echo json_encode($product_error);
         }
+        return true;
     }
 
     public function actionAddNewUser()
     {
-        require_once ROOT.'/models/Users.php';
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = json_decode($_POST['user'], true);
 
             function checkDataUser ($user) {
-                global $auth_error;
 
                 if (!(isset($user['first_name']) && strlen($user['first_name'])>3)) {
                     $auth_error['first_name_length'] = "Імя повинно містити щонайменше 3 символи";
@@ -102,22 +101,40 @@ class ApiController
 
             if (isset($user['token'])) {
                 checkDataUser($user);
+                /**
+                 *  Вкзазуємо значення поля "is_verification" за замовчування 1
+                 *  що буде вказувати на те, что цей користувач підтверджений
+                 *  оскільки ввійшов через соц. мережу
+                 */
+                $user['is_verification'] = '1';
+
                 auth_with_social($user);
             } elseif (isset($user['password']) && strlen($user['password'])>3) {
                 checkDataUser($user);
-                $user['is_verification'] = 0;
+
+                /**
+                 *  Вкзазуємо значення поля "is_verification" за замовчування 0
+                 *  що буде вказувати на те, что цей користувач ще не підтверджений адміном
+                 */
+                $user['is_verification'] = '0';
+
                 auth_with_email($user);
             } else {
                 checkDataUser($user);
                 $auth_error['password'] = "Пароль повинен містити щонайменше 3 символи";
             }
         }
+        return true;
     }
 
+    /**
+     * При успішній авторизації видає дані про користуваа в форматі json
+     * в іншому випадку null
+     *
+     * @return bool
+     */
     public function actionLogin()
     {
-        require_once ROOT.'/models/Users.php';
-
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = json_decode($_POST['user'], true);
 
@@ -125,6 +142,7 @@ class ApiController
 
             echo json_encode($result);
         }
+        return true;
     }
 
     public function actionIndex()
@@ -179,27 +197,13 @@ class ApiController
             }
 
             echo $result;
-
         }
+
+        return true;
     }
 
     public function actionEditCar($id)
     {
-//        echo "<br> SERVER";
-//        var_dump($_SERVER);
-//        echo "<br> GET";
-//        var_dump($_GET);
-//        echo "<br> POST";
-//        var_dump($_POST);
-//        echo "<br> REQUEST";
-//        var_dump($_REQUEST);
-//        echo "<br> ENV";
-//        var_dump($_ENV);
-
-/*        echo "<br> http_response_header";
-        var_dump($http_response_header);*/
-
-
         if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             $validate_errors = [];
 
@@ -215,22 +219,22 @@ class ApiController
                 }
                 if (isset($edit_fields['model'])) {
                     if (! preg_match('~[a-zA-z0-9_ -]{3,64}~i', $edit_fields['model'])) {
-                        $validate_errors['model'] = "Введіть корректну марку автомобіля!";
+                        $validate_errors['model'] = "Введіть корректну модель автомобіля!";
                     }
                 }
                 if (isset($edit_fields['year'])) {
                     if (! preg_match('~[a-zA-z0-9_ -]{3,20}~i', $edit_fields['year'])) {
-                        $validate_errors['year'] = "Введіть корректну марку автомобіля!";
+                        $validate_errors['year'] = "Введіть корректний рік автомобіля!";
                     }
                 }
                 if (isset($edit_fields['color'])) {
                     if (! preg_match('~[a-zA-z0-9_ -]{3,64}~i', $edit_fields['color'])) {
-                        $validate_errors['color'] = "Введіть корректну марку автомобіля!";
+                        $validate_errors['color'] = "Введіть корректний колір автомобіля!";
                     }
                 }
                 if (isset($edit_fields['price'])) {
                     if (! preg_match('~[a-zA-z0-9_ -]+~i', $edit_fields['price'])) {
-                        $validate_errors['price'] = "Введіть корректну марку автомобіля!";
+                        $validate_errors['price'] = "Введіть корректну ціну автомобіля!";
                     }
                 }
             } else {
@@ -247,8 +251,163 @@ class ApiController
             } else {
                 $result = json_encode($validate_errors);
             }
-
             echo $result;
         }
+        return true;
     }
+
+    /* ADMIN */
+
+    public function actionAddAdminUser()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $user = json_decode($_POST['user'], true);
+
+            function checkDataUser ($user) {
+                $auth_error = [];
+
+                if (!(isset($user['first_name']) && preg_match('~[a-zA-z0-9_ -]{3,64}~i', $user['first_name']))) {
+                    $auth_error['first_name_length'] = "Імя повинно містити щонайменше 3 символи";
+                }
+                if (!(isset($user['last_name']) && preg_match('~[a-zA-z0-9_ -]{3,64}~i', $user['last_name']))) {
+                    $auth_error['last_name_length'] = "Прізвище повинно містити щонайменше 3 символи";
+                }
+                if (!(isset($user['email']) && preg_match("/.+@.+\..+/i", $user['email']))) {
+                    $auth_error['email'] = "Введено некоректний email";
+                }
+
+                if (count($auth_error) > 0) {
+                    echo json_encode($auth_error);die;
+                }
+            }
+
+            function addAdminUser ($user) {
+                $user_exist = Admin::adminEmailExist($user);
+                if ($user_exist == 0) {
+                    $result = Admin::addAdminUser($user);
+                    if (!$result) {
+                        $auth_error['no_auth'] = "Реєстрація неможлива!";
+                        echo json_encode($auth_error);die;
+                    }
+                } else {
+                    $auth_error['user_exist'] = "Користувач з таким email вже існує";
+                    echo json_encode($auth_error);
+                    die;
+                }
+            }
+
+            if (isset($user['password']) && preg_match('~[a-zA-z0-9_ -]{3,64}~i', $user['password'])) {
+                checkDataUser($user);
+
+                /**
+                 *  Вкзазуємо значення поля "is_admin" за замовчування 1
+                 *  що буде вказувати на те, что цей користувач є адміном
+                 */
+                $user['is_admin'] = 1;
+
+                addAdminUser($user);
+            } else {
+                checkDataUser($user);
+                $auth_error['password'] = "Пароль повинен містити щонайменше 3 символи";
+            }
+        }
+        return true;
+    }
+
+    public function actionLoginAdminUser()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $user = json_decode($_POST['user'], true);
+
+            $result = Admin::adminLogin($user);
+
+            echo json_encode($result);
+        }
+        return true;
+    }
+
+    public function actionUsersList($parameters = null)
+    {
+        if ($parameters != null && preg_match('~[01]~', $parameters[0])) {
+            $filter['is_verification'] = $parameters[0];
+        } else {
+            $filter = [];
+        }
+
+        $result =  json_encode(Admin::getUsersList($filter));
+        echo $result;
+        return true;
+    }
+
+    public function actionViewUser($id)
+    {
+        if (preg_match('~^[a-f0-9]{24}$~', $id[0])) {
+            if (Admin::checkUserExist($id[0])) {
+                $result = Admin::getUser($id[0]);
+                echo json_encode($result);
+            } else {
+                $product_error['is_not_exist'] = 'Користувача з таким id не існує!';
+                echo json_encode($product_error);
+            }
+        } else {
+            $product_error['is_not_exist'] = 'Користувача з таким id не існує!';
+            echo json_encode($product_error);
+        }
+        return true;
+    }
+
+    public function actionEditUser($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
+            $validate_errors = [];
+
+            $putdata = file_get_contents('php://input');
+            parse_str($putdata, $edit_fields);
+            $edit_fields = json_decode($edit_fields['edit_fields'], true);
+
+            if (count($edit_fields) > 0) {
+                if (isset($edit_fields['first_name'])) {
+                    if (! preg_match('~[a-zA-z0-9_ -]{3,64}~i', $edit_fields['first_name'])) {
+                        $validate_errors['first_name'] = "Введіть коректне і'мя";
+                    }
+                }
+                if (isset($edit_fields['last_name'])) {
+                    if (! preg_match('~[a-zA-z0-9_ -]{3,64}~i', $edit_fields['last_name'])) {
+                        $validate_errors['last_name'] = "Введіть коректне прізвище";
+                    }
+                }
+                if (isset($edit_fields['email'])) {
+                    if (! preg_match('~[a-zA-z0-9_ -]{3,20}~i', $edit_fields['email'])) {
+                        $validate_errors['email'] = "Введіть коректний email";
+                    }
+                }
+                if (isset($edit_fields['password'])) {
+                    if (! preg_match('~[a-zA-z0-9_ -]{3,64}~i', $edit_fields['password_length'])) {
+                        $validate_errors['password_length'] = "Введіть коректний пароль";
+                    }
+                }
+                if (isset($edit_fields['is_verification'])) {
+                    if (! preg_match('~[a-zA-z0-9_ -]+~i', $edit_fields['is_verification'])) {
+                        $validate_errors['is_verification'] = "Не вірне підтвердження!";
+                    }
+                }
+            } else {
+                $validate_errors['change_not_found'] = 'Не внесено ніяких змін';
+            }
+
+            if (count($validate_errors) == 0) {
+                if (Admin::checkUserExist($id[0])) {
+                    $result = json_encode(Admin::updateUser($id[0], $edit_fields));
+                } else {
+                    $product_error['is_not_exist'] = 'Користувача з таким id не існує!';
+                    $result = json_encode($product_error);
+                }
+            } else {
+                $result = json_encode($validate_errors);
+            }
+            echo $result;
+        }
+        return true;
+    }
+
 }

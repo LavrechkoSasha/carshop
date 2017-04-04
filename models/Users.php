@@ -38,6 +38,13 @@ class Users
         return $result;
     }
 
+    /**
+     * При успішній авторизації повертає масив з даними про користувача
+     * в іншому випадку повертає null
+     *
+     * @param $user
+     * @return array|null
+     */
     public static function userLogin($user) {
         $mongo = new MongoClient(); // соединяемся с сервером
         $collection_users = $mongo->selectDB('carshop')->selectCollection('users');

@@ -11,7 +11,7 @@
 
 <h1><?php echo "View"; ?></h1>
 
-<h3>Перегляд автомобіля з id:  <?php echo $parameters[0]; ?></h3>
+<h3>Перегляд автомобіля з id:  <?php echo $id; ?></h3>
 
 <?php if (count($api_error) == 0): ?>
 
@@ -45,7 +45,7 @@
     <div style="clear: both;"></div>
 </div>
 
-    <?php if (isset($_SESSION['user']['id']) && $car_info['author_id'] == $_SESSION['user']['id']) { ?>
+    <?php if (isset($_SESSION['user']['id']) && $car_info['author_id'] == $_SESSION['user']['id'] || isset($_SESSION['user']['is_admin'])) { ?>
         <p><a href="<?php echo "/products/edit/{$car_info['_id']['$id']}"; ?>">Редагувати</a></p>
     <?php } ?>
 

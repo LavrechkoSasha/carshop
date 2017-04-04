@@ -17,7 +17,6 @@
     }
     ?>
 
-    <?php  ?>
 
     <form action="" method="post">
         <?php if (isset($auth_error["first_name_length"] )) echo "<p style='color: red;'>Імя повинно містити щонайменше 3 символи</p>"?>
@@ -52,6 +51,7 @@
         <div style="clear: both"></div>
         <p><div id="uLogin" data-ulogin="display=small;theme=classic;fields=first_name,last_name,email;providers=vkontakte,odnoklassniki,mailru,facebook;hidden=other;redirect_uri=http%3A%2F%2Fcarshop%2Fusers%2Fadd%2F;mobilebuttons=0;"></div></p>
     </form>
+
 
     <script src="//ulogin.ru/js/ulogin.js"></script>
 
